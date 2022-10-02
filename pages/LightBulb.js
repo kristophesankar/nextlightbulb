@@ -1,12 +1,25 @@
 import styles from '../styles/LightBulb.module.css'
 import {useState} from 'react'
+import { createMachine, assign } from "xstate";
+import { useMachine } from "@xstate/react";
+
+const lightbulbMachine = createMachine({
+  id: "lightbulb",
+  initial: "unlit",
+  states: {
+    unlit: {
+      on: { TOGGLE: "lit" }
+    },
+    lit: {
+      on: { TOGGLE: "unlit" }
+    }
+  }
+});
 
 export default function LightBulb () {
-
-  const [bulb, setBulb] = useState(false)
-
+  const [state, send] = useMachine(lightbulbMachine);
   return (
-    <div className={ bulb
+    <div className={ state.matches("lit")
         ? `${styles.bcontainer} ${styles["on"]}`
         : styles.bcontainer }>
       <div className={styles.light}>
@@ -16,7 +29,7 @@ export default function LightBulb () {
           <span></span>
         </div>
         <div className={styles.switch}>
-            <div className={styles.btn} onClick={ () => setBulb(!bulb) }>
+            <div className={styles.btn} onClick={ () => send('TOGGLE') }>
             </div>
         </div>
       </div>
